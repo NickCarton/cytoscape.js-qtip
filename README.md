@@ -12,9 +12,9 @@ A Cytoscape.js extension that wraps the [qTip jQuery library](http://qtip2.com)
 
 ## Dependencies
 
- * jQuery >= 1.10.0, as qTip requires it
- * qTip >= 2.2.0
- * Cytoscape.js >=2.2.0
+ * jQuery ^1.10.0 || ^2.0, as qTip requires it
+ * qTip ^2.2.0
+ * Cytoscape.js ^2.2.0
 
 
 ## Usage instructions
@@ -76,6 +76,11 @@ var api = cy.qtip('api');
 See the [qTip docs for details on the API](http://qtip2.com/api).  If you create more than one qTip on an element and use its API, you'll have to cache the `api` references after creating each qTip.
 
 
+## API restrictions
+
+You may not use `options.position.target`.  If you require a different value, like `'body'` or `'mouse'`, you don't need this extenstion -- you can simply use the qTip APIs directly on a DOM element.
+
+
 ## API additions
 
 These are additional options you can use for convenience.  Remember: This extension is just a wrapper to qTip.  If you require more complex behaviour, you should manually use the [qTip API](http://qtip2.com/api).
@@ -87,7 +92,6 @@ These are additional options you can use for convenience.  Remember: This extens
  * `options.hide.cyBgOnly` : When `true`, hides core qTips only for events originated on the core (not bubbled).  Useful for "background" events.
 
  * `options.hide.cyViewport` : When `true`, hides qTips when the viewport is manipulated (i.e. zoom/pan).
-
 
 ## Publishing instructions
 
