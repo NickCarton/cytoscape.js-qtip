@@ -176,6 +176,7 @@ SOFTWARE.
     // use a single dummy dom ele as target for every qtip
     var $qtipContainer = $('<div></div>');
     var viewportDebounceRate = 250;
+    var nodeRadius = 23;
 
     $qtipContainer.css({
       'z-index': -1,
@@ -249,29 +250,35 @@ SOFTWARE.
       var pos = isNode ? ele.renderedPosition() : ( e ? e.cyRenderedPosition : undefined );
       if( !pos || pos.x == null || isNaN(pos.x) ){ return; }
 
-      var bb = isNode ? ele.renderedBoundingBox({
-        includeNodes: true,
-        includeEdges: false,
-        includeLabels: false,
-        includeShadows: false
-      }) : {
-        x1: pos.x - 1,
-        x2: pos.x + 1,
-        w: 3,
-        y1: pos.y - 1,
-        y2: pos.y + 1,
-        h: 3
-      };
+      var offset = ele.isNode() ? ele._private.style['width'].value : 0;
+
+      // assign new location value
+      var newPositionX = cOff.left + pos.x + window.pageXOffset + offset / 2 * cy.zoom();
+      // with of the node with zoom factor
+      var nodeWidthOffset = offset * cy.zoom();
+      // the half width of tooltip
+      var toolTipWidthOffset = 40;
+      var newPositionY = cOff.top + pos.y + window.pageYOffset - offset * 1.5; // Align Qtip horizontally (offset * 1.5) is the middle of the height
+      // screen width
+      var screenWidth = $(window).width();
+      // the max pixel the right node can close to the right screen
+      var maxRightPos = 200;
+      // if it is less than the max width
+      ele.data('left', false);
+      if ((screenWidth - newPositionX) < maxRightPos) {
+          newPositionX -= nodeWidthOffset + toolTipWidthOffset;
+          ele.data('left', true);
+      }
 
       if( qtip.$domEle.parent().length === 0 ){
         qtip.$domEle.appendTo(document.body);
       }
 
       qtip.$domEle.css({
-        'width': bb.w,
-        'height': bb.h,
-        'top': bb.y1 + cOff.top + window.pageYOffset,
-        'left': bb.x1 + cOff.left + window.pageXOffset,
+        // 'width': bb.w,
+        // 'height': bb.h,
+        'top': newPositionY,
+        'left': newPositionX,
         'position': 'absolute',
         'pointer-events': 'none',
         'background': 'red',
@@ -296,6 +303,7 @@ SOFTWARE.
         var scratch = ele.scratch();
         var qtip = scratch.qtip = scratch.qtip || {};
         var opts = generateOpts( ele, passedOpts );
+        ele.data('qtip-id', opts.id);
         var adjNums = opts.position.adjust;
 
         qtip.$domEle.qtip( opts );
